@@ -43,7 +43,6 @@ function initCompiler(lPathToTypeScriptService, lSessionId, params) {
   if (typeof sys.useCaseSensitiveFileNames === "undefined") return new Error('Cannot init sys properties');
 
 
-
   sessionId = lSessionId;
   typeScriptServiceDirectory = ts.getDirectoryPath(ts.normalizePath(typeScriptServicePath));
   storeRequire = require('./store.js');
@@ -97,8 +96,8 @@ function getConfigState(configFileName) {
   }
 
   var configObject = result.config;
-  var configParseResult = ts.parseConfigFile(configObject, sys, ts.getDirectoryPath(configFileName));
-  if (configParseResult.errors.length > 0) {
+  var configParseResult = ts.parseConfigFileTextToJson(configObject, sys, ts.getDirectoryPath(configFileName));
+  if (configParseResult.errors && configParseResult.errors.length > 0) {
     throw new Error("Parse tsconfig error " + JSON.stringify(configParseResult.errors));
   }
 
@@ -146,7 +145,8 @@ function compileFile(sentObject) {
     }
     paths = configState.parseResult.fileNames;
 
-  } else {
+  }
+  else {
     paths = filesToCompile;
   }
 
@@ -186,7 +186,8 @@ function compileFile(sentObject) {
         var diagnostic = {};
         diagnostic.filename = currentFile;
         diagnostic.category = "warning";
-        diagnostic.message = "File was not compiled because there is no a reference" + (mainFile ? " from main file" : " from tsconfig.json");
+        diagnostic.message =
+            "File was not compiled because there is no a reference" + (mainFile ? " from main file" : " from tsconfig.json");
         if (resultObject.dataArray && resultObject.dataArray.length > 0) {
           resultObject['dataArray'].unshift(diagnostic);
         }
@@ -217,6 +218,7 @@ function processResult(compilerOptions) {
   emitFilesArray = [];
   if (program.getDiagnostics) {
     var errors = program.getDiagnostics();
+
     //todo use exit status
     //var exitStatus;
     if (errors.length) {
@@ -267,6 +269,8 @@ function processResult(compilerOptions) {
     emitFiles = emitFilesArray;
     emitFilesArray = null;
   }
+
+
   result.emitFiles = emitFiles;
   if (logDebugData) console.log('Total process result time ' + (Date.now() - startTime));
   return result;
@@ -415,7 +419,8 @@ function reportDiagnostics(resultObject, diagnostics) {
     var textMessage = "";
     if (typeof diagnostic.messageText === "string") {
       textMessage = diagnostic.messageText;
-    } else if(diagnostic.messageText != null && diagnostic.messageText.messageText != null) {
+    }
+    else if (diagnostic.messageText != null && diagnostic.messageText.messageText != null) {
       textMessage = diagnostic.messageText.messageText;
     }
 
