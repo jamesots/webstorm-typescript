@@ -96,7 +96,7 @@ function getConfigState(configFileName) {
   }
 
   var configObject = result.config;
-  var configParseResult = ts.parseConfigFileTextToJson(configObject, sys, ts.getDirectoryPath(configFileName));
+  var configParseResult = ts.parseJsonConfigFileContent(configObject, sys, ts.getDirectoryPath(configFileName));
   if (configParseResult.errors && configParseResult.errors.length > 0) {
     throw new Error("Parse tsconfig error " + JSON.stringify(configParseResult.errors));
   }
